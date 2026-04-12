@@ -1,0 +1,76 @@
+# Version control
+.git
+.gitignore
+.gitattributes
+.github
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Dependencies
+node_modules
+vendor
+__pycache__
+*.pyc
+*.pyo
+.venv
+venv
+env
+
+# Build output
+dist
+build
+out
+target
+*.egg-info
+
+# Logs & temp files
+*.log
+*.tmp
+*.swp
+*.swo
+tmp
+temp
+
+# Test & coverage
+coverage
+.nyc_output
+.pytest_cache
+.tox
+*.test
+*.spec
+
+# IDE & editor configs
+.vscode
+.idea
+*.sublime-project
+*.sublime-workspace
+.editorconfig
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment & secrets
+.env
+.env.*
+*.pem
+*.key
+*.cert
+secrets
+
+# Documentation
+README*
+CHANGELOG*
+CONTRIBUTING*
+LICENSE
+docs
+
+# CI/CD
+.travis.yml
+.circleci
+.github
+Jenkinsfile
