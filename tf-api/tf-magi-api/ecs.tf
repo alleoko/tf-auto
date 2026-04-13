@@ -1,15 +1,15 @@
 ###############################################################################
-# ecs.tf  –  ECS task definition, service, autoscaling for magiweb
+# ecs.tf  –  ECS task definition, service, autoscaling for magi-api
 ###############################################################################
 
 resource "aws_cloudwatch_log_group" "main" {
-  name              = "/ecs/magi-app-stg-magiweb"
+  name              = "/ecs/magi-app-stg-magi-api"
   retention_in_days = 14
   tags              = local.common_tags
 }
 
 resource "aws_ecs_task_definition" "main" {
-  family                   = "magi-app-stg-magiweb"
+  family                   = "magi-app-stg-magi-api"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.task_cpu
@@ -18,7 +18,7 @@ resource "aws_ecs_task_definition" "main" {
   task_role_arn            = data.terraform_remote_state.infra.outputs.ecs_task_role_arn
 
   container_definitions = jsonencode([{
-    name      = "magi-app-stg-magiweb"
+    name      = "magi-app-stg-magi-api"
     image     = "${aws_ecr_repository.main.repository_url}:latest"
     essential = true
 
@@ -30,7 +30,7 @@ resource "aws_ecs_task_definition" "main" {
     logConfiguration = {
       logDriver = "awslogs"
       options = {
-        "awslogs-group"         = "/ecs/magi-app-stg-magiweb"
+        "awslogs-group"         = "/ecs/magi-app-stg-magi-api"
         "awslogs-region"        = var.aws_region
         "awslogs-stream-prefix" = "ecs"
       }
@@ -43,6 +43,7 @@ resource "aws_ecs_task_definition" "main" {
       { name = "DB_HOST",   value = data.terraform_remote_state.infra.outputs.rds_endpoint },
       { name = "DB_PORT",   value = tostring(data.terraform_remote_state.infra.outputs.rds_port) },
       { name = "DB_USER",   value = var.db_username },
+      { name = "CORS_ORIGIN", value = "http://${data.terraform_remote_state.infra.outputs.webapp_alb_dns}" }
     ]
 
     secrets = [
@@ -64,7 +65,7 @@ resource "aws_ecs_task_definition" "main" {
 }
 
 resource "aws_ecs_service" "main" {
-  name            = "magi-app-stg-magiweb-service"
+  name            = "magi-app-stg-magi-api-service"
   cluster         = data.terraform_remote_state.infra.outputs.ecs_cluster_arn
   task_definition = aws_ecs_task_definition.main.arn
   desired_count   = var.desired_count
@@ -78,7 +79,7 @@ resource "aws_ecs_service" "main" {
     rollback = true
   }
 
-   # network_configuration {
+ # network_configuration {
  #   subnets          = data.terraform_remote_state.infra.outputs.private_subnet_ids
  #   security_groups  = [data.terraform_remote_state.infra.outputs.sg_api_tasks_id]
  #   assign_public_ip = false
@@ -88,13 +89,14 @@ resource "aws_ecs_service" "main" {
   security_groups  = [data.terraform_remote_state.infra.outputs.sg_api_tasks_id]
   assign_public_ip = true   # tasks get public IP to reach ECR/CloudWatch
   # 
-}
-#Able to LB
+} 
+
+#Able to do
   load_balancer {
-    target_group_arn = data.terraform_remote_state.infra.outputs.api_target_group_arns["magiweb"]
-    container_name   = "magi-app-stg-magiweb"
+    target_group_arn = data.terraform_remote_state.infra.outputs.api_target_group_arns["magi-api"]
+    container_name   = "magi-app-stg-magi-api"
     container_port   = 3000
- }
+  }
 
   lifecycle { ignore_changes = [task_definition, desired_count] }
   tags = local.common_tags
@@ -109,7 +111,7 @@ resource "aws_appautoscaling_target" "main" {
 }
 
 resource "aws_appautoscaling_policy" "main" {
-  name               = "magi-app-stg-magiweb-cpu-scaling"
+  name               = "magi-app-stg-magi-api-cpu-scaling"
   policy_type        = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.main.resource_id
   scalable_dimension = aws_appautoscaling_target.main.scalable_dimension

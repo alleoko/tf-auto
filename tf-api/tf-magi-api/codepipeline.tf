@@ -1,15 +1,15 @@
 ###############################################################################
-# codepipeline.tf  –  CodeStar, CodeBuild, CodePipeline for magiweb
+# codepipeline.tf  –  CodeStar, CodeBuild, CodePipeline for magi-api
 ###############################################################################
 
 resource "aws_codestarconnections_connection" "main" {
-  name          = "magi-app-stg-magiweb-github"
+  name          = "magi-app-stg-magi-api-github"
   provider_type = "GitHub"
   tags          = local.common_tags
 }
 
 resource "aws_codebuild_project" "main" {
-  name          = "magi-app-stg-magiweb-build"
+  name          = "magi-app-stg-magi-api-build"
   build_timeout = 20
   service_role  = data.terraform_remote_state.infra.outputs.codebuild_role_arn
 
@@ -46,7 +46,7 @@ resource "aws_codebuild_project" "main" {
 
     environment_variable {
       name  = "CONTAINER_NAME"
-      value = "magi-app-stg-magiweb"
+      value = "magi-app-stg-magi-api"
     }
   }
 
@@ -57,7 +57,7 @@ resource "aws_codebuild_project" "main" {
 
   logs_config {
     cloudwatch_logs {
-      group_name  = "/codebuild/magi-app-stg-magiweb"
+      group_name  = "/codebuild/magi-app-stg-magi-api"
       stream_name = "build"
     }
   }
@@ -66,7 +66,7 @@ resource "aws_codebuild_project" "main" {
 }
 
 resource "aws_codepipeline" "main" {
-  name     = "magi-app-stg-magiweb-pipeline"
+  name     = "magi-app-stg-magi-api-pipeline"
   role_arn = data.terraform_remote_state.infra.outputs.codepipeline_role_arn
 
   artifact_store {

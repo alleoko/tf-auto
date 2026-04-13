@@ -2,7 +2,7 @@ aws_region    = "ap-southeast-1"
 app_name      = "magi-app-stg"
 environment   = "staging"
 
-github_repo   = "alejo-nervetech/magi-dup-user-api"
+github_repo   = "alejo-nervetech/magi-dup-users-api"
 github_branch = "main"
 
 task_cpu      = 256

@@ -1,5 +1,5 @@
 ###############################################################################
-# tf-api/tf-magiweb-api/main.tf
+# tf-api/tf-magi-api-api/main.tf
 ###############################################################################
 
 terraform {
@@ -12,7 +12,7 @@ terraform {
   }
   backend "s3" {
     bucket = "magi-app-stg-tfstate"
-    key    = "magiweb/terraform.tfstate"
+    key    = "magi-api/terraform.tfstate"
     region = "ap-southeast-1"
   }
 }
@@ -37,6 +37,6 @@ locals {
     Project     = var.app_name
     Environment = var.environment
     ManagedBy   = "Terraform"
-    Service     = "magiweb"
+    Service     = "magi-api"
   }
 }

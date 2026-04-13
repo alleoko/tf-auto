@@ -75,7 +75,7 @@
  }
 
  locals {
-   api_services = ["users", "patient", "facility", "guarantor", "inventory", "reports", "magiweb"]
+   api_services = ["users", "patient", "facility", "guarantor", "inventory", "reports", "magi-api"]
  }
 
  resource "aws_lb_target_group" "api" {
@@ -259,14 +259,14 @@ resource "aws_lb_listener_rule" "patient_5" {
    }
  }
 
- resource "aws_lb_listener_rule" "magiweb" {
+ resource "aws_lb_listener_rule" "magi-api" {
    listener_arn = aws_lb_listener.api.arn
    priority     = 70
    action {
      type             = "forward"
-     target_group_arn = aws_lb_target_group.api["magiweb"].arn
+     target_group_arn = aws_lb_target_group.api["magi-api"].arn
    }
    condition {
-     path_pattern { values = ["/api/magiweb/*"] }
+     path_pattern { values = ["/api/magi-api/*"] }
    }
  }
