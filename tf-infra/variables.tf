@@ -59,7 +59,7 @@ variable "db_name" {
 variable "db_username" {
   description = "PostgreSQL master username"
   type        = string
-  default     = "admin"
+  default     = "admin1234"
 }
 
 variable "db_password" {
