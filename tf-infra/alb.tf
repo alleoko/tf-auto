@@ -26,7 +26,7 @@
    target_type = "ip"
 
    health_check {
-     path                = "/health"
+     path                = "/healthcheck"
      matcher             = "200"
      interval            = 30
      timeout             = 5
@@ -87,7 +87,7 @@
    target_type = "ip"
 
    health_check {
-     path                = "/health"
+     path                = "/healthcheck"
      matcher             = "200"
      interval            = 30
      timeout             = 5

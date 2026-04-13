@@ -23,7 +23,7 @@ variable "environment" {
 variable "github_repo" {
   description = "GitHub repo in owner/repo format"
   type        = string
-  default     = "alejo-nervetech/magi-dup-user-api"
+  default     = "alejo-nervetech/magi-dup-magi-api"
 }
 
 variable "github_branch" {

@@ -43,22 +43,32 @@ resource "aws_ecs_task_definition" "main" {
       { name = "DB_HOST",   value = data.terraform_remote_state.infra.outputs.rds_endpoint },
       { name = "DB_PORT",   value = tostring(data.terraform_remote_state.infra.outputs.rds_port) },
       { name = "DB_USER",   value = var.db_username },
-      { name = "CORS_ORIGIN", value = "http://${data.terraform_remote_state.infra.outputs.webapp_alb_dns}" }
-    ]
+      { name = "CORS_ORIGIN", value = "http://${data.terraform_remote_state.infra.outputs.webapp_alb_dns}" },
+    
+  # Downstream service URLs via internal ALB — path-based routing handles the rest
+  { name = "USERS_API_URL",      value = "http://${data.terraform_remote_state.infra.outputs.api_alb_dns}" },
+  { name = "FACILITY_API_URL",   value = "http://${data.terraform_remote_state.infra.outputs.api_alb_dns}" },
+  { name = "PATIENT_API_URL",    value = "http://${data.terraform_remote_state.infra.outputs.api_alb_dns}" },
+  { name = "GUARANTOR_API_URL",  value = "http://${data.terraform_remote_state.infra.outputs.api_alb_dns}" },
+  { name = "INVENTORY_API_URL",  value = "http://${data.terraform_remote_state.infra.outputs.api_alb_dns}" },
+  { name = "REPORTS_API_URL",    value = "http://${data.terraform_remote_state.infra.outputs.api_alb_dns}" },
+]
+    
+    
 
     secrets = [
-      { name = "DB_PASSWORD",    valueFrom = data.terraform_remote_state.infra.outputs.ssm_db_password_arn },
+    #  { name = "DB_PASSWORD",    valueFrom = data.terraform_remote_state.infra.outputs.ssm_db_password_arn },
       { name = "JWT_TOKEN",      valueFrom = data.terraform_remote_state.infra.outputs.ssm_jwt_token_arn },
       { name = "SERVICE_SECRET", valueFrom = data.terraform_remote_state.infra.outputs.ssm_service_secret_arn },
     ]
 
-    healthCheck = {
-      command     = ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"]
-      interval    = 30
-      timeout     = 5
-      retries     = 3
-      startPeriod = 60
-    }
+    healthcheck = {
+   command     = ["CMD-SHELL", "wget -qO- http://localhost:3000/healthcheck || exit 1"]
+ interval    = 30
+  timeout     = 5
+  retries     = 3
+  startPeriod = 60
+}
   }])
 
   tags = local.common_tags
