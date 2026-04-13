@@ -99,29 +99,117 @@
 
 # ── Listener rules – path-based routing ──────────────────────────────────────
 
- resource "aws_lb_listener_rule" "users" {
-   listener_arn = aws_lb_listener.api.arn
-   priority     = 10
-   action {
-     type             = "forward"
-     target_group_arn = aws_lb_target_group.api["users"].arn
-   }
-   condition {
-     path_pattern { values = ["/api/users/*", "/api/auth/*"] }
-   }
- }
+ resource "aws_lb_listener_rule" "users_1" {
+  listener_arn = aws_lb_listener.api.arn
+  priority     = 10
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.api["users"].arn
+  }
+  condition {
+    path_pattern {
+      values = ["/v1/user", "/v1/user/*", "/v1/users", "/v1/users/*", "/v1/role"]
+    }
+  }
+}
 
- resource "aws_lb_listener_rule" "patient" {
-   listener_arn = aws_lb_listener.api.arn
-   priority     = 20
-   action {
-     type             = "forward"
-     target_group_arn = aws_lb_target_group.api["patient"].arn
-   }
-   condition {
-     path_pattern { values = ["/api/patients/*"] }
-   }
- }
+resource "aws_lb_listener_rule" "users_2" {
+  listener_arn = aws_lb_listener.api.arn
+  priority     = 11
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.api["users"].arn
+  }
+  condition {
+    path_pattern {
+      values = ["/v1/role/*", "/v1/roles", "/v1/permission", "/v1/permission/*", "/v1/doctor-fee"]
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "users_3" {
+  listener_arn = aws_lb_listener.api.arn
+  priority     = 12
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.api["users"].arn
+  }
+  condition {
+    path_pattern {
+      values = ["/v1/doctor-fee/*"]
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "patient_1" {
+  listener_arn = aws_lb_listener.api.arn
+  priority     = 20
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.api["patient"].arn
+  }
+  condition {
+    path_pattern {
+      values = ["/v1/patient", "/v1/patient/*", "/v1/patients", "/v1/case", "/v1/case/*"]
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "patient_2" {
+  listener_arn = aws_lb_listener.api.arn
+  priority     = 21
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.api["patient"].arn
+  }
+  condition {
+    path_pattern {
+      values = ["/v1/cases", "/v1/vital", "/v1/vital/*", "/v1/vitals", "/v1/charge"]
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "patient_3" {
+  listener_arn = aws_lb_listener.api.arn
+  priority     = 22
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.api["patient"].arn
+  }
+  condition {
+    path_pattern {
+      values = ["/v1/charge/*", "/v1/charges", "/v1/patient-diet", "/v1/patient-diet/*", "/v1/patient-diets"]
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "patient_4" {
+  listener_arn = aws_lb_listener.api.arn
+  priority     = 23
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.api["patient"].arn
+  }
+  condition {
+    path_pattern {
+      values = ["/v1/service-type", "/v1/service-type/*", "/v1/service-types", "/v1/informant", "/v1/informant/*"]
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "patient_5" {
+  listener_arn = aws_lb_listener.api.arn
+  priority     = 24
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.api["patient"].arn
+  }
+  condition {
+    path_pattern {
+      values = ["/v1/billing", "/v1/billing/*", "/v1/dashboard", "/v1/dashboard/*"]
+    }
+  }
+}
 
  resource "aws_lb_listener_rule" "facility" {
    listener_arn = aws_lb_listener.api.arn

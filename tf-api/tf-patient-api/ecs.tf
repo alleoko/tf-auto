@@ -43,6 +43,7 @@ resource "aws_ecs_task_definition" "main" {
       { name = "DB_HOST",   value = data.terraform_remote_state.infra.outputs.rds_endpoint },
       { name = "DB_PORT",   value = tostring(data.terraform_remote_state.infra.outputs.rds_port) },
       { name = "DB_USER",   value = var.db_username },
+      { name = "CORS_ORIGIN", value = "http://${data.terraform_remote_state.infra.outputs.webapp_alb_dns}" }
     ]
 
     secrets = [
@@ -90,11 +91,11 @@ resource "aws_ecs_service" "main" {
   # 
 }
 
- # load_balancer {
- #   target_group_arn = data.terraform_remote_state.infra.outputs.api_target_group_arns["patient"]
- #   container_name   = "magi-app-stg-patient"
- #   container_port   = 3000
- # }
+  load_balancer {
+    target_group_arn = data.terraform_remote_state.infra.outputs.api_target_group_arns["patient"]
+    container_name   = "magi-app-stg-patient"
+    container_port   = 3000
+  }
 
   lifecycle { ignore_changes = [task_definition, desired_count] }
   tags = local.common_tags

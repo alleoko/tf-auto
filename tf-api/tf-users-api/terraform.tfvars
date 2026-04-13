@@ -7,8 +7,8 @@ github_branch = "main"
 
 task_cpu      = 256
 task_memory   = 512
-desired_count = 0
-min_capacity  = 0
-max_capacity  = 0
+desired_count = 1
+min_capacity  = 1
+max_capacity  = 5
 db_name     = "appdb"
 db_username = "admin1234"

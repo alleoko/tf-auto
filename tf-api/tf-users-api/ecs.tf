@@ -43,6 +43,7 @@ resource "aws_ecs_task_definition" "main" {
       { name = "DB_HOST",   value = data.terraform_remote_state.infra.outputs.rds_endpoint },
       { name = "DB_PORT",   value = tostring(data.terraform_remote_state.infra.outputs.rds_port) },
       { name = "DB_USER",   value = var.db_username },
+      { name = "CORS_ORIGIN", value = "http://${data.terraform_remote_state.infra.outputs.webapp_alb_dns}" }
     ]
 
     secrets = [

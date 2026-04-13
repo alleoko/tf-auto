@@ -43,7 +43,7 @@ resource "aws_ecs_task_definition" "main" {
       { name = "PORT",              value = "80" },
       { name = "CORS_ORIGIN",       value = "*" },
 #to enable ALB
-      { name = "API_BASE_URL",      value = "http://${data.terraform_remote_state.infra.outputs.api_alb_dns}" },
+      { name = "VITE_MAGI_API_URL", value = "http://${data.terraform_remote_state.infra.outputs.api_alb_dns}" },
     
     ]
 
