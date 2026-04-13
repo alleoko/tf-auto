@@ -1,26 +1,32 @@
-#!/bin/bash
+import os
+import subprocess
+import sys
 
-# List of Terraform project directories
-directories=(
-    "/tf-infra/bootstrap"
-    "/tf-infra"
-    "/tf-api/tf-web-app"
-)
+directories = [
+    "/tf-infra",
+ #   "/path/to/terraform2",
+ #   "/path/to/terraform3",
+ #   "/path/to/terraform4",
+ #   "/path/to/terraform5",
+ #   "/path/to/terraform6"
+]
 
-for dir in "${directories[@]}"
-do
-    echo "Processing directory: $dir"
-    cd "$dir" || { echo "Failed to change directory to $dir"; continue; }
+for i, dir_path in enumerate(directories, start=1):
+    print(f"Running Terraform in: {dir_path}")
+    os.chdir(dir_path)
     
-    echo "Running terraform init..."
-    terraform init
+    # Run terraform init
+    init_process = subprocess.run("terraform init -input=false", shell=True, capture_output=True, text=True)
+    if init_process.returncode != 0:
+        print(f"Failed to initialize in {dir_path}")
+        print(init_process.stderr)
+        sys.exit(1)  # Exit if init fails
 
-    echo "Running terraform plan..."
-    terraform plan
+    # Run terraform apply
+    apply_process = subprocess.run("terraform apply -auto-approve", shell=True, capture_output=True, text=True)
+    if apply_process.returncode != 0:
+        print(f"Terraform apply failed in {dir_path}")
+        print(apply_process.stderr)
+        sys.exit(1)  # Exit if apply fails
 
-    echo "Running terraform apply..."
-    terraform apply -auto-approve
-
-    echo "Completed processing: $dir"
-    echo "------------------------------"
-done
+    print(f"Successfully applied in {dir_path}\n")

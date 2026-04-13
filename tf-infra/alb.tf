@@ -99,7 +99,7 @@
 
 # ── Listener rules – path-based routing ──────────────────────────────────────
 
- resource "aws_lb_listener_rule" "users_1" {
+ resource "aws_lb_listener_rule" "users" {
   listener_arn = aws_lb_listener.api.arn
   priority     = 10
   action {
@@ -108,38 +108,11 @@
   }
   condition {
     path_pattern {
-      values = ["/v1/user", "/v1/user/*", "/v1/users", "/v1/users/*", "/v1/role"]
+      values = ["/v1/user*", "/v1/users*", "/v1/role*", "/v1/permission*", "/v1/doctor-fee*" ]
     }
   }
 }
 
-resource "aws_lb_listener_rule" "users_2" {
-  listener_arn = aws_lb_listener.api.arn
-  priority     = 11
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.api["users"].arn
-  }
-  condition {
-    path_pattern {
-      values = ["/v1/role/*", "/v1/roles", "/v1/permission", "/v1/permission/*", "/v1/doctor-fee"]
-    }
-  }
-}
-
-resource "aws_lb_listener_rule" "users_3" {
-  listener_arn = aws_lb_listener.api.arn
-  priority     = 12
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.api["users"].arn
-  }
-  condition {
-    path_pattern {
-      values = ["/v1/doctor-fee/*"]
-    }
-  }
-}
 
 resource "aws_lb_listener_rule" "patient_1" {
   listener_arn = aws_lb_listener.api.arn
