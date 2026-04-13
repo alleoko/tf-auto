@@ -57,12 +57,12 @@ resource "aws_ecs_task_definition" "main" {
     
 
     secrets = [
-    #  { name = "DB_PASSWORD",    valueFrom = data.terraform_remote_state.infra.outputs.ssm_db_password_arn },
+      { name = "DB_PASSWORD",    valueFrom = data.terraform_remote_state.infra.outputs.ssm_db_password_arn },
       { name = "JWT_TOKEN",      valueFrom = data.terraform_remote_state.infra.outputs.ssm_jwt_token_arn },
       { name = "SERVICE_SECRET", valueFrom = data.terraform_remote_state.infra.outputs.ssm_service_secret_arn },
     ]
 
-    healthcheck = {
+    healthCheck = {
    command     = ["CMD-SHELL", "wget -qO- http://localhost:3000/healthcheck || exit 1"]
  interval    = 30
   timeout     = 5

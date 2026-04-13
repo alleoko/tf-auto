@@ -52,7 +52,7 @@ resource "aws_ecs_task_definition" "main" {
       { name = "SERVICE_SECRET", valueFrom = data.terraform_remote_state.infra.outputs.ssm_service_secret_arn },
     ]
 
-   healthcheck = {
+   healthCheck = {
   command     = ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000/healthcheck', r => process.exit(r.statusCode === 200 ? 0 : 1))\""]
   interval    = 30
   timeout     = 5

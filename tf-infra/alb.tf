@@ -101,7 +101,7 @@
 
  resource "aws_lb_listener_rule" "users" {
   listener_arn = aws_lb_listener.api.arn
-  priority     = 10
+  priority     = 30
   action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.api["users"].arn
@@ -234,12 +234,12 @@ resource "aws_lb_listener_rule" "patient_5" {
 
  resource "aws_lb_listener_rule" "magi-api" {
    listener_arn = aws_lb_listener.api.arn
-   priority     = 70
+   priority     = 10
    action {
      type             = "forward"
      target_group_arn = aws_lb_target_group.api["magi-api"].arn
    }
    condition {
-     path_pattern { values = ["/api/magi-api/*"] }
+     path_pattern { values = ["/v1/*"] }
    }
  }
