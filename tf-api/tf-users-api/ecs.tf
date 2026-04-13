@@ -52,13 +52,13 @@ resource "aws_ecs_task_definition" "main" {
       { name = "SERVICE_SECRET", valueFrom = data.terraform_remote_state.infra.outputs.ssm_service_secret_arn },
     ]
 
-    healthCheck = {
-      command     = ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"]
-      interval    = 30
-      timeout     = 5
-      retries     = 3
-      startPeriod = 60
-    }
+   healthcheck = {
+  command     = ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000/healthcheck', r => process.exit(r.statusCode === 200 ? 0 : 1))\""]
+  interval    = 30
+  timeout     = 5
+  retries     = 3
+  startPeriod = 60
+}
   }])
 
   tags = local.common_tags
