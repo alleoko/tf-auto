@@ -48,6 +48,10 @@ resource "aws_codebuild_project" "main" {
       name  = "CONTAINER_NAME"
       value = "magi-app-stg-webapp"
     }
+       environment_variable {
+      name  = "MAGI_API_URL"
+      value = "http://${data.terraform_remote_state.infra.outputs.api_alb_dns}"
+    }
   }
 
   source {

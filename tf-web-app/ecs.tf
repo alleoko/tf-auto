@@ -41,9 +41,9 @@ resource "aws_ecs_task_definition" "main" {
       { name = "NODE_ENV",          value = var.environment },
       #port value 3000 for apis
       { name = "PORT",              value = "80" },
-      { name = "CORS_ORIGIN",       value = "*" },
+     # { name = "CORS_ORIGIN",       value = "*" },
 #to enable ALB
-      { name = "VITE_MAGI_API_URL", value = "http://${data.terraform_remote_state.infra.outputs.api_alb_dns}" },
+     # { name = "VITE_MAGI_API_URL", value = "http://${data.terraform_remote_state.infra.outputs.api_alb_dns}" },
     
     ]
 
@@ -54,7 +54,8 @@ resource "aws_ecs_task_definition" "main" {
 
     healthCheck = {
       #port 3000 for apis
-      command = ["CMD-SHELL", "wget -qO- http://localhost:80/health || exit 1"]
+      
+      command     = ["CMD-SHELL", "wget -qO- http://localhost:80/health || exit 1"]
       interval    = 30
       timeout     = 5
       retries     = 3

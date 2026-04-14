@@ -43,7 +43,8 @@ resource "aws_ecs_task_definition" "main" {
       { name = "DB_HOST",   value = data.terraform_remote_state.infra.outputs.rds_endpoint },
       { name = "DB_PORT",   value = tostring(data.terraform_remote_state.infra.outputs.rds_port) },
       { name = "DB_USER",   value = var.db_username },
-      { name = "CORS_ORIGIN", value = "http://${data.terraform_remote_state.infra.outputs.webapp_alb_dns}" }
+      { name = "CORS_ORIGIN", value = "http://${data.terraform_remote_state.infra.outputs.api_alb_dns}" },
+  
     ]
 
     secrets = [
@@ -53,8 +54,9 @@ resource "aws_ecs_task_definition" "main" {
     ]
 
    healthCheck = {
-  command     = ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000/healthcheck', r => process.exit(r.statusCode === 200 ? 0 : 1))\""]
-  interval    = 30
+
+       command     = ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"] 
+       interval    = 30
   timeout     = 5
   retries     = 3
   startPeriod = 60

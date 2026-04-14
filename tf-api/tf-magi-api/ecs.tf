@@ -44,8 +44,9 @@ resource "aws_ecs_task_definition" "main" {
       { name = "DB_PORT",   value = tostring(data.terraform_remote_state.infra.outputs.rds_port) },
       { name = "DB_USER",   value = var.db_username },
       { name = "CORS_ORIGIN", value = "http://${data.terraform_remote_state.infra.outputs.webapp_alb_dns}" },
-    
+   
   # Downstream service URLs via internal ALB — path-based routing handles the rest
+ 
   { name = "USERS_API_URL",      value = "http://${data.terraform_remote_state.infra.outputs.api_alb_dns}" },
   { name = "FACILITY_API_URL",   value = "http://${data.terraform_remote_state.infra.outputs.api_alb_dns}" },
   { name = "PATIENT_API_URL",    value = "http://${data.terraform_remote_state.infra.outputs.api_alb_dns}" },
@@ -63,7 +64,7 @@ resource "aws_ecs_task_definition" "main" {
     ]
 
     healthCheck = {
-   command     = ["CMD-SHELL", "wget -qO- http://localhost:3000/healthcheck || exit 1"]
+     command     = ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"]
  interval    = 30
   timeout     = 5
   retries     = 3

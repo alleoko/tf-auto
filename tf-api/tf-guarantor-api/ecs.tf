@@ -52,7 +52,8 @@ resource "aws_ecs_task_definition" "main" {
     ]
 
     healthCheck = {
-      command     = ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"]
+    
+   command = ["CMD-SHELL", "wget -qO- http://${data.terraform_remote_state.infra.outputs.webapp_alb_dns}:3000/healthcheck || exit 1"]
       interval    = 30
       timeout     = 5
       retries     = 3
