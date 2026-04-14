@@ -1,5 +1,12 @@
 ###############################################################################
 # ecs.tf  –  ECS task definition, service, autoscaling for webapp
+#
+# NOTE on VITE_MAGI_API_URL:
+#   Vite bakes environment variables into the JS bundle at BUILD TIME.
+#   Setting them as ECS runtime environment variables has zero effect on the
+#   already-compiled static assets served by Nginx.
+#   The API URL is injected during CodeBuild via --build-arg VITE_MAGI_API_URL.
+#   See tf-web-app/codepipeline.tf for where the value is set.
 ###############################################################################
 
 resource "aws_cloudwatch_log_group" "main" {
@@ -23,7 +30,6 @@ resource "aws_ecs_task_definition" "main" {
     essential = true
 
     portMappings = [{
-      #port will be 3000 to all apis
       containerPort = 80
       protocol      = "tcp"
     }]
@@ -38,13 +44,8 @@ resource "aws_ecs_task_definition" "main" {
     }
 
     environment = [
-      { name = "NODE_ENV",          value = var.environment },
-      #port value 3000 for apis
-      { name = "PORT",              value = "80" },
-     # { name = "CORS_ORIGIN",       value = "*" },
-#to enable ALB
-     # { name = "VITE_MAGI_API_URL", value = "http://${data.terraform_remote_state.infra.outputs.api_alb_dns}" },
-    
+      { name = "NODE_ENV", value = var.environment },
+      { name = "PORT",     value = "80" },
     ]
 
     secrets = [
@@ -53,8 +54,6 @@ resource "aws_ecs_task_definition" "main" {
     ]
 
     healthCheck = {
-      #port 3000 for apis
-      
       command     = ["CMD-SHELL", "wget -qO- http://localhost:80/health || exit 1"]
       interval    = 30
       timeout     = 5
@@ -81,14 +80,13 @@ resource "aws_ecs_service" "main" {
     rollback = true
   }
 
+  # No NAT: public subnet + public IP for ECR pulls and CloudWatch logs.
   network_configuration {
-#to able the nat make the public to private
     subnets          = data.terraform_remote_state.infra.outputs.public_subnet_ids
     security_groups  = [data.terraform_remote_state.infra.outputs.sg_webapp_tasks_id]
-#to able the nat make the assignip false
     assign_public_ip = true
   }
-#to able LB
+
   load_balancer {
     target_group_arn = data.terraform_remote_state.infra.outputs.webapp_target_group_arn
     container_name   = "magi-app-stg-webapp"

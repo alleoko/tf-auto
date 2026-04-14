@@ -1,5 +1,9 @@
 ###############################################################################
 # codepipeline.tf  –  CodeStar, CodeBuild, CodePipeline for webapp
+#
+# MAGI_API_URL is passed as a Docker --build-arg so Vite bakes it into the
+# JS bundle at build time.  It must resolve from the browser, so it MUST be
+# the PUBLIC ALB DNS (webapp_alb_dns), not the internal API ALB.
 ###############################################################################
 
 resource "aws_codestarconnections_connection" "main" {
@@ -48,9 +52,14 @@ resource "aws_codebuild_project" "main" {
       name  = "CONTAINER_NAME"
       value = "magi-app-stg-webapp"
     }
-       environment_variable {
+
+    # This is injected into docker build as --build-arg VITE_MAGI_API_URL.
+    # Vite bakes it into the React bundle so the browser calls /v1/* on the
+    # public ALB.  The public ALB routes /v1/* to the magi-api gateway.
+    # Uses the PUBLIC webapp ALB — browsers cannot reach the internal ALB.
+    environment_variable {
       name  = "MAGI_API_URL"
-      value = "http://${data.terraform_remote_state.infra.outputs.api_alb_dns}"
+      value = "http://${data.terraform_remote_state.infra.outputs.webapp_alb_dns}"
     }
   }
 

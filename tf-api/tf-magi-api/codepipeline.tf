@@ -33,10 +33,6 @@ resource "aws_codebuild_project" "main" {
       name  = "AWS_DEFAULT_REGION"
       value = var.aws_region
     }
-    environment_variable { 
-      name = "VITE_MAGI_API_URL" 
-      value = "http://${"https://ap-southeast-1.console.aws.amazon.com/ec2/home?region=ap-southeast-1#LoadBalancer:loadBalancerArn=arn:aws:elasticloadbalancing:ap-southeast-1:340752825345:loadbalancer/app/magi-app-stg-webapp-alb/90ccd7b179a51598"}" 
-      }
 
     environment_variable {
       name  = "AWS_ACCOUNT_ID"

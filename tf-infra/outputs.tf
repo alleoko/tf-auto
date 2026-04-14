@@ -23,11 +23,15 @@ output "ssm_db_password_arn"         { value = aws_ssm_parameter.db_password.arn
 output "ssm_jwt_token_arn"           { value = aws_ssm_parameter.jwt_token.arn }
 output "ssm_service_secret_arn"      { value = aws_ssm_parameter.service_secret.arn }
 
-# ── ALB outputs (uncomment when ALB is enabled in alb.tf) ────────────────────
+# ── ALB outputs ────────────────────────────────────────────────────────────────
 
-output "webapp_alb_dns"            { value = aws_lb.webapp.dns_name }
-output "webapp_alb_url"            { value = "http://${aws_lb.webapp.dns_name}" }
-output "webapp_target_group_arn"   { value = aws_lb_target_group.webapp.arn }
-output "api_alb_dns"               { value = aws_lb.api.dns_name }
-output "api_alb_listener_arn"      { value = aws_lb_listener.api.arn }
-output "api_target_group_arns"     { value = { for k, v in aws_lb_target_group.api : k => v.arn } }
+output "webapp_alb_dns"              { value = aws_lb.webapp.dns_name }
+output "webapp_alb_url"              { value = "http://${aws_lb.webapp.dns_name}" }
+output "webapp_target_group_arn"     { value = aws_lb_target_group.webapp.arn }
+
+# magi-api gateway is served on the PUBLIC ALB — used by tf-api/tf-magi-api
+output "magi_api_target_group_arn"   { value = aws_lb_target_group.magi_api.arn }
+
+output "api_alb_dns"                 { value = aws_lb.api.dns_name }
+output "api_alb_listener_arn"        { value = aws_lb_listener.api.arn }
+output "api_target_group_arns"       { value = { for k, v in aws_lb_target_group.api : k => v.arn } }

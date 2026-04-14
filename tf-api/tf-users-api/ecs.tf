@@ -1,5 +1,5 @@
 ###############################################################################
-# ecs.tf  –  ECS task definition, service, autoscaling for users
+# ecs.tf  –  ECS task definition, service, autoscaling for users-api
 ###############################################################################
 
 resource "aws_cloudwatch_log_group" "main" {
@@ -37,14 +37,16 @@ resource "aws_ecs_task_definition" "main" {
     }
 
     environment = [
-      { name = "NODE_ENV",  value = var.environment },
-      { name = "PORT",      value = "3000" },
-      { name = "DB_NAME",   value = var.db_name },
-      { name = "DB_HOST",   value = data.terraform_remote_state.infra.outputs.rds_endpoint },
-      { name = "DB_PORT",   value = tostring(data.terraform_remote_state.infra.outputs.rds_port) },
-      { name = "DB_USER",   value = var.db_username },
-      { name = "CORS_ORIGIN", value = "http://${data.terraform_remote_state.infra.outputs.api_alb_dns}" },
-  
+      { name = "NODE_ENV",    value = var.environment },
+      { name = "PORT",        value = "3000" },
+      { name = "DB_NAME",     value = var.db_name },
+      { name = "DB_HOST",     value = data.terraform_remote_state.infra.outputs.rds_endpoint },
+      { name = "DB_PORT",     value = tostring(data.terraform_remote_state.infra.outputs.rds_port) },
+      { name = "DB_USER",     value = var.db_username },
+      # CORS origin must be the PUBLIC webapp ALB — not the internal API ALB.
+      # users-api is called server-to-server by magi-api, but CORS header must
+      # match the browser's actual origin.
+      { name = "CORS_ORIGIN", value = "http://${data.terraform_remote_state.infra.outputs.webapp_alb_dns}" },
     ]
 
     secrets = [
@@ -53,14 +55,13 @@ resource "aws_ecs_task_definition" "main" {
       { name = "SERVICE_SECRET", valueFrom = data.terraform_remote_state.infra.outputs.ssm_service_secret_arn },
     ]
 
-   healthCheck = {
-
-       command     = ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"] 
-       interval    = 30
-  timeout     = 5
-  retries     = 3
-  startPeriod = 60
-}
+    healthCheck = {
+      command     = ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"]
+      interval    = 30
+      timeout     = 5
+      retries     = 3
+      startPeriod = 60
+    }
   }])
 
   tags = local.common_tags
@@ -81,19 +82,14 @@ resource "aws_ecs_service" "main" {
     rollback = true
   }
 
- # network_configuration {
- #   subnets          = data.terraform_remote_state.infra.outputs.private_subnet_ids
- #   security_groups  = [data.terraform_remote_state.infra.outputs.sg_api_tasks_id]
- #   assign_public_ip = false
- # }
+  # No NAT: tasks run in public subnets with a public IP so they can reach
+  # ECR (image pull) and CloudWatch (logs) via the internet gateway.
   network_configuration {
-  subnets          = data.terraform_remote_state.infra.outputs.public_subnet_ids
-  security_groups  = [data.terraform_remote_state.infra.outputs.sg_api_tasks_id]
-  assign_public_ip = true   # tasks get public IP to reach ECR/CloudWatch
-  # 
-} 
+    subnets          = data.terraform_remote_state.infra.outputs.public_subnet_ids
+    security_groups  = [data.terraform_remote_state.infra.outputs.sg_api_tasks_id]
+    assign_public_ip = true
+  }
 
-#Able to do
   load_balancer {
     target_group_arn = data.terraform_remote_state.infra.outputs.api_target_group_arns["users"]
     container_name   = "magi-app-stg-users"
